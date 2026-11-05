@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Discover technology job opportunities across the United States and Canada. Search by skills, location, and work arrangement.">
+  <meta name="keywords" content="USA IT jobs, Canada IT jobs, software engineering jobs, cloud jobs, AI jobs, DevOps jobs">
+  <meta name="theme-color" content="#0b1220">
+  <title>RecruitVerse Jobs | USA & Canada Technology Opportunities</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="RecruitVerse Jobs home"><span class="brand-mark">RV</span><span>RecruitVerse<span class="brand-accent">™</span><small> NORTH AMERICA TECH JOBS</small></span></a>
+    <nav><a href="#jobs">Browse jobs</a><a href="#about">About</a><a class="nav-cta" href="#candidate">Submit profile</a></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span class="pulse"></span> USA & CANADA · TECHNOLOGY CAREERS</div>
+      <h1>Find your next<br><span>technology opportunity.</span></h1>
+      <p class="hero-copy">Explore software, cloud, data, AI, cybersecurity, ERP and engineering opportunities across North America.</p>
+      <form id="heroSearch" class="hero-search">
+        <label class="sr-only" for="searchInput">Search job title, skills, or location</label>
+        <span aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Job title, skills, company or location">
+        <button type="submit">Search jobs</button>
+      </form>
+      <div class="hero-tags"><span>Remote</span><span>Hybrid</span><span>Onsite</span><span>Contract</span><span>Full-time</span></div>
+      <div class="hero-glow"></div>
+    </section>
+
+    <section class="stats" aria-label="Portal highlights">
+      <div><strong id="jobCount">—</strong><span>Open listings</span></div>
+      <div><strong>2</strong><span>Countries</span></div>
+      <div><strong>24/7</strong><span>Search access</span></div>
+    </section>
+
+    <section id="jobs" class="jobs-section">
+      <div class="section-heading"><div><p class="eyebrow">OPPORTUNITY BOARD</p><h2>Explore open positions</h2><p class="muted">Search and filter current listings. Check each employer's requirements before applying.</p></div><span id="resultsCount" class="results-count"></span></div>
+      <div class="filters">
+        <label class="filter-search">⌕ <input id="filterSearch" type="search" placeholder="Search title, skill, or keyword"></label>
+        <select id="countryFilter" aria-label="Country"><option value="">All countries</option><option>USA</option><option>Canada</option></select>
+        <select id="modeFilter" aria-label="Work mode"><option value="">All work modes</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select>
+        <select id="typeFilter" aria-label="Employment type"><option value="">All employment types</option><option>Full-Time</option><option>Contract</option><option>Part-Time</option></select>
+        <select id="seniorityFilter" aria-label="Seniority"><option value="">All levels</option><option>Junior</option><option>Mid</option><option>Senior</option><option>Lead</option><option>Architect</option></select>
+      </div>
+      <div id="jobGrid" class="job-grid" aria-live="polite"></div>
+      <div id="emptyState" class="empty-state" hidden><h3>No matching jobs found</h3><p>Try removing a filter or searching for a broader skill.</p><button class="button-secondary" id="clearFilters">Clear filters</button></div>
+    </section>
+
+    <section id="candidate" class="candidate-band">
+      <div><p class="eyebrow">TALENT COMMUNITY</p><h2>Not seeing the right opportunity?</h2><p>Share your professional profile and preferred role. A recruiter can review it for relevant openings.</p></div>
+      <a class="button-primary" href="https://forms.google.com/" target="_blank" rel="noopener">Submit your profile ↗</a>
+    </section>
+
+    <section id="about" class="about-section"><p class="eyebrow">ABOUT THE PORTAL</p><h2>Built for North American technology talent.</h2><p class="muted">RecruitVerse Jobs is an independent job-discovery project. Listings are provided for informational purposes. Always verify the employer, role status, compensation, work arrangement, and work-authorization requirements before sharing personal information.</p></section>
+  </main>
+
+  <footer><a class="brand footer-brand" href="./"><span class="brand-mark">RV</span><span>RecruitVerse™</span></a><span>USA & Canada · Technology opportunities</span><span>© <span id="year"></span> RecruitVerse</span></footer>
+
+  <dialog id="jobDialog" class="job-dialog">
+    <button class="dialog-close" id="closeDialog" aria-label="Close">×</button>
+    <div id="dialogContent"></div>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>

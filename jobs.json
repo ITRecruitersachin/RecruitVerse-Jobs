@@ -1,0 +1,130 @@
+[
+  {
+    "id": "US-SRE-001",
+    "title": "Lead Site Reliability Engineer",
+    "company": "Confidential Client",
+    "country": "USA",
+    "state": "Virginia",
+    "city": "McLean",
+    "location": "McLean, VA / Wilmington, NC",
+    "workMode": "Hybrid",
+    "employmentType": "Full-Time",
+    "seniority": "Lead",
+    "experience": "10+ years",
+    "skills": [
+      "AWS",
+      "Kubernetes",
+      "Terraform",
+      "CI/CD",
+      "Observability",
+      "SRE"
+    ],
+    "description": "Lead reliability engineering initiatives, improve platform resilience, and guide cloud infrastructure practices.",
+    "requirements": [
+      "Strong production SRE or platform engineering experience",
+      "Hands-on AWS and Kubernetes",
+      "Infrastructure as Code with Terraform",
+      "CI/CD and observability experience"
+    ],
+    "authorization": "Work authorization requirements must be confirmed with the employer.",
+    "postedDate": "2026-11-06",
+    "status": "open",
+    "applyUrl": ""
+  },
+  {
+    "id": "CA-JAVA-002",
+    "title": "Senior Java Developer",
+    "company": "Example Employer",
+    "country": "Canada",
+    "state": "Ontario",
+    "city": "Toronto",
+    "location": "Toronto, ON",
+    "workMode": "Hybrid",
+    "employmentType": "Contract",
+    "seniority": "Senior",
+    "experience": "8+ years",
+    "skills": [
+      "Java",
+      "Spring Boot",
+      "Microservices",
+      "REST APIs",
+      "SQL",
+      "AWS"
+    ],
+    "description": "Build and maintain enterprise backend services using Java, Spring Boot, and cloud-native patterns.",
+    "requirements": [
+      "Strong Java and Spring Boot development",
+      "Microservices and REST API design",
+      "SQL and relational database experience",
+      "Experience working in Agile teams"
+    ],
+    "authorization": "Confirm Canadian work authorization and contract eligibility with the employer.",
+    "postedDate": "2026-11-06",
+    "status": "open",
+    "applyUrl": ""
+  },
+  {
+    "id": "US-AI-003",
+    "title": "AI Engineer \u2013 LLM / RAG",
+    "company": "Example Employer",
+    "country": "USA",
+    "state": "Remote",
+    "city": "Remote",
+    "location": "Remote \u2013 USA",
+    "workMode": "Remote",
+    "employmentType": "Contract",
+    "seniority": "Senior",
+    "experience": "5+ years",
+    "skills": [
+      "Python",
+      "LLM",
+      "RAG",
+      "LangChain",
+      "Vector Databases",
+      "AWS"
+    ],
+    "description": "Develop LLM-powered applications, retrieval-augmented generation workflows, and production AI integrations.",
+    "requirements": [
+      "Strong Python development",
+      "Hands-on LLM and RAG implementation",
+      "Experience with orchestration frameworks",
+      "API integration and cloud deployment experience"
+    ],
+    "authorization": "Employer-specific work authorization requirements apply.",
+    "postedDate": "2026-11-06",
+    "status": "open",
+    "applyUrl": ""
+  },
+  {
+    "id": "CA-D365-004",
+    "title": "Microsoft Dynamics 365 F&O Consultant",
+    "company": "Example Employer",
+    "country": "Canada",
+    "state": "Quebec",
+    "city": "Montreal",
+    "location": "Montreal, QC",
+    "workMode": "Hybrid",
+    "employmentType": "Full-Time",
+    "seniority": "Senior",
+    "experience": "8+ years",
+    "skills": [
+      "Dynamics 365 F&O",
+      "Finance",
+      "Supply Chain",
+      "LCS",
+      "Power BI",
+      "ERP"
+    ],
+    "description": "Support and deliver Dynamics 365 Finance and Operations implementations, enhancements, and business process improvements.",
+    "requirements": [
+      "Experience with Dynamics AX or D365 Finance and Operations",
+      "Finance or Supply Chain functional expertise",
+      "Implementation or support lifecycle experience",
+      "Strong stakeholder communication"
+    ],
+    "authorization": "Confirm location-specific employment eligibility with the employer.",
+    "postedDate": "2026-11-06",
+    "status": "open",
+    "applyUrl": ""
+  }
+]
