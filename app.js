@@ -1,6 +1,6 @@
 const state={jobs:[],search:"",country:"",region:"",city:"",category:"",skill:"",mode:"",type:"",seniority:"",experience:"",sort:"relevance"};
 const $=id=>document.getElementById(id);
-async function loadJobs(){try{const r=await fetch("jobs.json");if(!r.ok)throw Error("jobs.json unavailable");state.jobs=await r.json();populateOptions();renderJobs();}catch(e){$("jobGrid").innerHTML='<p class="muted">Could not load job data. Check that jobs.json is in the repository root.</p>';console.error(e);}}
+async function loadJobs(){try{const r=await fetch("jobs.json");if(!r.ok)throw Error("jobs.json unavailable");state.jobs=await r.json();populateOptions();renderJobs();if(typeof rvRenderAdminAndTools==="function")rvRenderAdminAndTools();}catch(e){$("jobGrid").innerHTML='<p class="muted">Could not load job data. Check that jobs.json is in the repository root.</p>';console.error(e);}}
 function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function unique(values){return [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
 function setOptions(id,values,label){const el=$(id);el.innerHTML=`<option value="">${label}</option>`+unique(values).map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join("");}
@@ -114,3 +114,122 @@ if (matchResumeButton) {
     document.getElementById("matcher").scrollIntoView({behavior:"smooth"});
   });
 }
+
+
+// Modules 5–10: browser-local recruiter tools.
+// Public listings remain sourced from jobs.json. Local drafts/candidates/alerts use localStorage.
+const RV_STORE = {
+  drafts:"rv_m56_job_drafts_v1",
+  candidates:"rv_m7_candidates_v1",
+  alerts:"rv_m8_alerts_v1",
+  overrides:"rv_m56_job_status_v1"
+};
+const rvRead=(key,fallback=[])=>{try{return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}};
+const rvWrite=(key,value)=>localStorage.setItem(key,JSON.stringify(value));
+const allLocalJobs=()=>[...state.jobs,...rvRead(RV_STORE.drafts,[])];
+function rvEsc(s=""){return escapeHTML(s)}
+function rvSetStats(){
+ const jobs=allLocalJobs(), candidates=rvRead(RV_STORE.candidates), alerts=rvRead(RV_STORE.alerts);
+ const put=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};
+ put("adminTotalJobs",jobs.filter(j=>j.status!=="closed").length);
+ put("adminCountries",new Set(jobs.map(j=>j.country)).size);
+ put("adminCandidates",candidates.length);put("adminAlerts",alerts.length);
+}
+function rvRenderAdmin(){
+ const list=document.getElementById("adminJobList");if(!list)return;
+ const jobs=allLocalJobs(), statuses=rvRead(RV_STORE.overrides,{});
+ list.innerHTML=jobs.map(j=>{const st=statuses[j.id]||j.status||"open";const action=st==="draft"?"":`<button class="button-secondary" data-status-id="${rvEsc(j.id)}" data-status-next="${st==="closed"?"open":"closed"}">${st==="closed"?"Reopen":"Close"}</button>`;return `<div class="admin-job-row"><div><strong>${rvEsc(j.title)}</strong><span>${rvEsc(j.company)} · ${rvEsc(j.location||"")}</span><small>${rvEsc(j.id)}</small></div><div class="admin-job-actions"><span class="status">${rvEsc(st)}</span>${action}</div></div>`}).join("")||"<p class='muted'>No job listings available.</p>";
+}
+function rvRenderCandidates(){
+ const q=(document.getElementById("candidateSearch")?.value||"").toLowerCase();
+ const candidates=rvRead(RV_STORE.candidates);
+ const filtered=candidates.filter(c=>[c.name,c.email,c.location,c.role,...c.skills].join(" ").toLowerCase().includes(q));
+ const count=document.getElementById("candidateCount");if(count)count.textContent=`${filtered.length} profiles`;
+ const list=document.getElementById("candidateList");if(!list)return;
+ list.innerHTML=filtered.map(c=>`<article class="candidate-row"><div><strong>${rvEsc(c.name)}</strong><span>${rvEsc(c.role)} · ${rvEsc(c.location)}</span><small>${rvEsc(c.email||"No email provided")}</small><div class="skill-list">${c.skills.map(s=>`<span>${rvEsc(s)}</span>`).join("")}</div></div><button class="button-secondary" data-delete-candidate="${rvEsc(c.id)}">Delete</button></article>`).join("")||"<p class='muted'>No saved candidates. Add a profile above.</p>";
+ rvSetStats();rvPopulateDiscovery();
+}
+function rvRenderAlerts(){
+ const alerts=rvRead(RV_STORE.alerts), box=document.getElementById("alertList");if(!box)return;
+ box.innerHTML=alerts.map(a=>`<div class="alert-row"><div><strong>${rvEsc(a.name)}</strong><span>${rvEsc([a.country||"USA & Canada",a.keyword,a.workMode].filter(Boolean).join(" · "))}</span></div><button class="button-secondary" data-delete-alert="${rvEsc(a.id)}">Delete</button></div>`).join("")||"<p class='muted'>No saved alerts yet.</p>";
+ rvSetStats();
+}
+function rvPopulateDiscovery(){
+ const candidates=rvRead(RV_STORE.candidates), csel=document.getElementById("discoveryCandidate"), jsel=document.getElementById("discoveryJob");
+ if(!csel||!jsel)return;
+ const old=csel.value;csel.innerHTML='<option value="">Select a saved candidate</option>'+candidates.map(c=>`<option value="${rvEsc(c.id)}">${rvEsc(c.name)} — ${rvEsc(c.role)}</option>`).join("");if(candidates.some(c=>c.id===old))csel.value=old;
+ const oldj=jsel.value;jsel.innerHTML='<option value="">All open jobs</option>'+allLocalJobs().filter(j=>j.status!=="closed").map(j=>`<option value="${rvEsc(j.id)}">${rvEsc(j.title)} — ${rvEsc(j.location||"")}</option>`).join("");if([...state.jobs,...rvRead(RV_STORE.drafts)].some(j=>j.id===oldj))jsel.value=oldj;
+}
+function rvRenderAdminAndTools(){rvSetStats();rvRenderAdmin();rvRenderCandidates();rvRenderAlerts();rvPopulateDiscovery();}
+document.querySelectorAll("[data-module-tab]").forEach(btn=>btn.addEventListener("click",()=>{
+ document.querySelectorAll("[data-module-tab]").forEach(b=>b.classList.toggle("active",b===btn));
+ document.querySelectorAll(".module-pane").forEach(p=>p.classList.toggle("active",p.id==="pane-"+btn.dataset.moduleTab));
+}));
+document.getElementById("jobPostForm")?.addEventListener("submit",e=>{
+ e.preventDefault();const f=new FormData(e.currentTarget),country=f.get("country"),region=f.get("region").trim(),city=f.get("city").trim();
+ const job={id:"RV-"+Date.now(),title:f.get("title").trim(),company:f.get("company").trim(),country,state:country==="USA"?region:"",province:country==="Canada"?region:"",city,location:`${city}, ${region}`,category:f.get("category").trim(),workMode:f.get("workMode"),employmentType:f.get("employmentType"),seniority:f.get("seniority"),experienceYears:Number(f.get("experienceYears")||0),experience:`${Number(f.get("experienceYears")||0)}+ years`,skills:f.get("skills").split(",").map(x=>x.trim()).filter(Boolean),description:f.get("description").trim(),applyUrl:f.get("applyUrl").trim(),status:"draft",postedDate:new Date().toISOString().slice(0,10),requirements:[]};
+ const drafts=rvRead(RV_STORE.drafts);drafts.unshift(job);rvWrite(RV_STORE.drafts,drafts);e.currentTarget.reset();document.getElementById("postStatus").textContent="Job draft saved in this browser. Export it and publish through your site administrator to make it public.";rvRenderAdminAndTools();
+});
+document.getElementById("adminJobList")?.addEventListener("click",e=>{
+ const b=e.target.closest("[data-status-id]");if(!b)return;
+ const statuses=rvRead(RV_STORE.overrides,{});statuses[b.dataset.statusId]=b.dataset.statusNext;rvWrite(RV_STORE.overrides,statuses);rvRenderAdmin();
+});
+document.getElementById("exportJobs")?.addEventListener("click",()=>{
+ const data=allLocalJobs().map(j=>({...j,status:j.status||"open"}));rvDownload("recruitverse-jobs-export.json",JSON.stringify(data,null,2),"application/json");
+});
+document.getElementById("candidateForm")?.addEventListener("submit",e=>{
+ e.preventDefault();const f=new FormData(e.currentTarget),candidate={id:"C-"+Date.now(),name:f.get("name").trim(),email:f.get("email").trim(),location:f.get("location").trim(),role:f.get("role").trim(),skills:f.get("skills").split(",").map(x=>x.trim()).filter(Boolean),createdAt:new Date().toISOString()};
+ const list=rvRead(RV_STORE.candidates);list.unshift(candidate);rvWrite(RV_STORE.candidates,list);e.currentTarget.reset();rvRenderCandidates();
+});
+document.getElementById("candidateSearch")?.addEventListener("input",rvRenderCandidates);
+document.getElementById("candidateList")?.addEventListener("click",e=>{
+ const b=e.target.closest("[data-delete-candidate]");if(!b)return;
+ rvWrite(RV_STORE.candidates,rvRead(RV_STORE.candidates).filter(c=>c.id!==b.dataset.deleteCandidate));rvRenderCandidates();
+});
+document.getElementById("exportCandidates")?.addEventListener("click",()=>{
+ const rows=rvRead(RV_STORE.candidates),cols=["name","email","location","role","skills"];
+ const csv=[cols.join(","),...rows.map(r=>cols.map(k=>'"'+String(k==="skills"?(r.skills||[]).join("; "):(r[k]||"")).replace(/"/g,'""')+'"').join(","))].join("\n");
+ rvDownload("recruitverse-candidates.csv",csv,"text/csv");
+});
+document.getElementById("alertForm")?.addEventListener("submit",e=>{
+ e.preventDefault();const f=new FormData(e.currentTarget),alert={id:"A-"+Date.now(),name:f.get("name").trim(),country:f.get("country"),keyword:f.get("keyword").trim(),workMode:f.get("workMode")};
+ const list=rvRead(RV_STORE.alerts);list.unshift(alert);rvWrite(RV_STORE.alerts,list);e.currentTarget.reset();rvRenderAlerts();
+});
+document.getElementById("alertList")?.addEventListener("click",e=>{
+ const b=e.target.closest("[data-delete-alert]");if(!b)return;
+ rvWrite(RV_STORE.alerts,rvRead(RV_STORE.alerts).filter(a=>a.id!==b.dataset.deleteAlert));rvRenderAlerts();
+});
+function rvDownload(filename,content,type){
+ const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+const packs={
+ java:{title:'("Java Developer" OR "Java Engineer" OR "Backend Engineer")',skills:'Java, Spring Boot, Microservices, REST APIs',loc:'("United States" OR USA OR Canada)'},
+ devops:{title:'("DevOps Engineer" OR "Cloud Engineer" OR "SRE")',skills:'AWS, Azure, Kubernetes, Terraform, Docker, CI/CD',loc:'("United States" OR USA OR Canada)'},
+ ai:{title:'("AI Engineer" OR "Machine Learning Engineer" OR "GenAI Engineer")',skills:'Python, LLM, RAG, LangChain, PyTorch, TensorFlow',loc:'("United States" OR USA OR Canada)'},
+ data:{title:'("Data Engineer" OR "Analytics Engineer")',skills:'Python, SQL, Spark, Databricks, Snowflake, ETL',loc:'("United States" OR USA OR Canada)'}
+};
+document.querySelectorAll("[data-pack]").forEach(b=>b.addEventListener("click",()=>{const p=packs[b.dataset.pack];document.getElementById("boolTitle").value=p.title;document.getElementById("boolSkills").value=p.skills;document.getElementById("boolLocation").value=p.loc;}));
+document.getElementById("buildBoolean")?.addEventListener("click",()=>{
+ const title=document.getElementById("boolTitle").value.trim(),skills=document.getElementById("boolSkills").value.split(",").map(x=>x.trim()).filter(Boolean),loc=document.getElementById("boolLocation").value.trim(),exclude=document.getElementById("boolExclude").value.split(",").map(x=>x.trim()).filter(Boolean),format=document.getElementById("boolFormat").value;
+ const quoteGroup=arr=>arr.length?"("+arr.map(x=>x.startsWith('"')?x:`"${x}"`).join(" OR ")+")":"";
+ const skillGroup=quoteGroup(skills),titleGroup=title?`(${title})`:"",locGroup=loc?`(${loc})`:"";
+ let result=[titleGroup,skillGroup,locGroup].filter(Boolean).join(" AND ");
+ if(exclude.length)result+=` NOT ${quoteGroup(exclude)}`;
+ if(format==="xray")result=`site:linkedin.com/in ${result}`;
+ if(format==="linkedin")result=`${titleGroup} AND ${skillGroup} AND ${locGroup}`.replace(/ AND \(\)/g,"");
+ document.getElementById("booleanOutput").value=result;
+});
+document.getElementById("copyBoolean")?.addEventListener("click",async()=>{
+ const text=document.getElementById("booleanOutput").value;if(!text)return;
+ try{await navigator.clipboard.writeText(text);document.getElementById("booleanStatus").textContent="Copied."}catch{document.getElementById("booleanOutput").select();document.getElementById("booleanStatus").textContent="Select and copy the text."}
+});
+document.getElementById("runDiscovery")?.addEventListener("click",()=>{
+ const cid=document.getElementById("discoveryCandidate").value,jid=document.getElementById("discoveryJob").value,box=document.getElementById("discoveryResults");
+ const candidate=rvRead(RV_STORE.candidates).find(c=>c.id===cid);
+ if(!candidate){box.innerHTML="<p class='match-empty'>Add and select a candidate profile first.</p>";return;}
+ let jobs=allLocalJobs().filter(j=>j.status!=="closed"&&(!jid||j.id===jid));
+ const cskills=(candidate.skills||[]).map(s=>s.toLowerCase());
+ const ranked=jobs.map(job=>{const req=(job.skills||[]),matched=req.filter(s=>cskills.some(c=>c===s.toLowerCase()||c.includes(s.toLowerCase())||s.toLowerCase().includes(c))),missing=req.filter(s=>!matched.includes(s)),pct=req.length?Math.round(matched.length/req.length*100):0;return{job,matched,missing,pct}}).sort((a,b)=>b.pct-a.pct);
+ box.innerHTML=ranked.map(x=>`<article class="match-card"><div class="match-card-head"><div><span class="job-id">${rvEsc(x.job.id)}</span><h3>${rvEsc(x.job.title)}</h3><p>${rvEsc(x.job.company)} · ${rvEsc(x.job.location||"")}</p></div><div class="match-score"><strong>${x.pct}%</strong><span>skills overlap</span></div></div><div class="match-meter"><span style="width:${x.pct}%"></span></div><p class="match-skill-lines"><b>Matched:</b> ${x.matched.map(rvEsc).join(", ")||"None"}<br><b>Not listed:</b> ${x.missing.map(rvEsc).join(", ")||"None"}</p></article>`).join("")||"<p class='match-empty'>No open jobs match this selection.</p>";
+});
+rvRenderAdminAndTools();
