@@ -11,7 +11,7 @@
 <body>
 <header class="site-header">
 <a class="brand" href="./"><span class="brand-mark">RV</span><span>RecruitVerse<span class="brand-accent">™</span><small>NORTH AMERICA TECH JOBS</small></span></a>
-<nav><a href="#jobs">Browse jobs</a><a href="#about">About</a><a class="nav-cta" href="#candidate">Submit profile</a></nav>
+<nav><a href="#jobs">Browse jobs</a><a href="#matcher">Skill match</a><a href="#about">About</a><a class="nav-cta" href="#candidate">Submit profile</a></nav>
 </header>
 <main>
 <section class="hero">
@@ -22,6 +22,10 @@
 <div class="hero-tags"><span>Remote</span><span>Hybrid</span><span>Onsite</span><span>Contract</span><span>Full-time</span></div><div class="hero-glow"></div>
 </section>
 <section class="stats"><div><strong id="jobCount">—</strong><span>Open listings</span></div><div><strong>2</strong><span>Countries</span></div><div><strong>24/7</strong><span>Search access</span></div></section>
+<section id="matcher" class="matcher-section">
+<div class="section-heading"><div><p class="eyebrow">RECRUITVERSE INTELLIGENCE</p><h2>Find jobs that match your skills</h2><p class="muted">Enter your technical skills. We compare them with skills listed in active jobs.</p></div></div>
+<div class="matcher-panel"><label class="matcher-label" for="candidateSkills">Your skills</label><textarea id="candidateSkills" rows="4" placeholder="Example: Java, Spring Boot, AWS, Microservices, SQL, Docker"></textarea><div class="matcher-controls"><div><label class="matcher-label" for="matchCountry">Preferred country</label><select id="matchCountry"><option value="">USA & Canada</option><option>USA</option><option>Canada</option></select></div><button id="runMatch" class="button-primary" type="button">Find my matches</button></div><p class="matcher-note">Separate skills with commas. Match scores reflect overlap with skills explicitly listed in each job; they are not hiring decisions.</p><div id="matchResults" class="match-results" aria-live="polite"></div></div>
+</section>
 <section id="jobs" class="jobs-section">
 <div class="section-heading"><div><p class="eyebrow">OPPORTUNITY BOARD</p><h2>Explore open positions</h2><p class="muted">Combine filters to narrow down relevant opportunities.</p></div><span id="resultsCount" class="results-count"></span></div>
 <div class="filter-panel">
