@@ -70,6 +70,22 @@
 <div id="emptyState" class="empty-state" hidden><h3>No matching jobs found</h3><p>Try removing one or more filters.</p><button class="button-secondary" id="emptyClear" type="button">Clear filters</button></div>
 </section>
 <section id="candidate" class="candidate-band"><div><p class="eyebrow">TALENT COMMUNITY</p><h2>Not seeing the right opportunity?</h2><p>Share your professional profile and preferred role. A recruiter can review it for relevant openings.</p></div><a class="button-primary" href="https://forms.google.com/" target="_blank" rel="noopener">Submit your profile ↗</a></section>
+
+<section id="rvAccount" class="candidate-band" style="display:block">
+  <div>
+    <p class="eyebrow">RECRUITER WORKSPACE</p>
+    <h2>Recruiter sign in</h2>
+    <p id="rvConnectionStatus">Checking secure database connection…</p>
+    <form id="rvLoginForm" style="display:grid;gap:10px;max-width:420px">
+      <label>Email <input id="rvLoginEmail" type="email" autocomplete="username" required></label>
+      <label>Password <input id="rvLoginPassword" type="password" autocomplete="current-password" required></label>
+      <button class="button-primary" type="submit">Sign in</button>
+    </form>
+    <p id="rvLoginMessage" aria-live="polite"></p>
+    <p id="rvProfileSummary"></p>
+    <button id="rvLogout" class="button-secondary" type="button" hidden>Sign out</button>
+  </div>
+</section>
 <section id="about" class="about-section"><p class="eyebrow">ABOUT THE PORTAL</p><h2>Built for North American technology talent.</h2><p class="muted">RecruitVerse Jobs is an independent job-discovery project. Listings are informational. Verify employer identity, role status, compensation, work arrangement and work-authorization requirements before sharing personal information.</p></section>
 </main>
 <footer><a class="brand footer-brand" href="./"><span class="brand-mark">RV</span><span>RecruitVerse™</span></a><span>USA & Canada · Technology opportunities</span><span>© <span id="year"></span> RecruitVerse</span></footer>
@@ -77,5 +93,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="backend.js"></script>
+<script src="account.js"></script>
 <script src="app.js"></script>
 </body></html>
