@@ -11,7 +11,7 @@
 <body>
 <header class="site-header">
 <a class="brand" href="./"><span class="brand-mark">RV</span><span>RecruitVerse<span class="brand-accent">™</span><small>NORTH AMERICA TECH JOBS</small></span></a>
-<nav><a href="#jobs">Browse jobs</a><a href="#matcher">Skill match</a><a href="#about">About</a><a class="nav-cta" href="#candidate">Submit profile</a></nav>
+<nav><a href="#jobs">Browse jobs</a><a href="#matcher">Skill match</a><a href="#resume">Resume upload</a><a href="#about">About</a><a class="nav-cta" href="#candidate">Submit profile</a></nav>
 </header>
 <main>
 <section class="hero">
@@ -25,6 +25,28 @@
 <section id="matcher" class="matcher-section">
 <div class="section-heading"><div><p class="eyebrow">RECRUITVERSE INTELLIGENCE</p><h2>Find jobs that match your skills</h2><p class="muted">Enter your technical skills. We compare them with skills listed in active jobs.</p></div></div>
 <div class="matcher-panel"><label class="matcher-label" for="candidateSkills">Your skills</label><textarea id="candidateSkills" rows="4" placeholder="Example: Java, Spring Boot, AWS, Microservices, SQL, Docker"></textarea><div class="matcher-controls"><div><label class="matcher-label" for="matchCountry">Preferred country</label><select id="matchCountry"><option value="">USA & Canada</option><option>USA</option><option>Canada</option></select></div><button id="runMatch" class="button-primary" type="button">Find my matches</button></div><p class="matcher-note">Separate skills with commas. Match scores reflect overlap with skills explicitly listed in each job; they are not hiring decisions.</p><div id="matchResults" class="match-results" aria-live="polite"></div></div>
+</section>
+
+<section id="resume" class="resume-section">
+  <div class="section-heading">
+    <div><p class="eyebrow">PRIVATE RESUME ANALYSIS</p><h2>Upload your resume for smarter matches</h2>
+    <p class="muted">Extract skills in your browser and compare them with current RecruitVerse listings.</p></div>
+  </div>
+  <div class="resume-panel">
+    <div class="resume-upload-row">
+      <div class="resume-icon">⇧</div>
+      <div class="resume-copy"><strong>Choose your resume</strong><span>PDF, DOCX or TXT · Maximum 5 MB</span></div>
+      <label class="button-primary upload-button" for="resumeFile">Choose file</label>
+      <input id="resumeFile" type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain">
+    </div>
+    <p class="privacy-note"><strong>Privacy:</strong> Your file is read locally in this browser. It is not sent to RecruitVerse or stored in the public GitHub repository. Avoid uploading documents containing information you do not want processed on this device.</p>
+    <div id="resumeStatus" class="resume-status" aria-live="polite">No resume selected.</div>
+    <div id="resumeSkillsWrap" class="resume-skills-wrap" hidden>
+      <div class="resume-skills-heading"><strong>Skills detected</strong><span id="resumeSkillCount"></span></div>
+      <div id="resumeSkillTags" class="resume-skill-tags"></div>
+      <button id="matchResumeSkills" class="button-primary resume-match-button" type="button">Find jobs using these skills</button>
+    </div>
+  </div>
 </section>
 <section id="jobs" class="jobs-section">
 <div class="section-heading"><div><p class="eyebrow">OPPORTUNITY BOARD</p><h2>Explore open positions</h2><p class="muted">Combine filters to narrow down relevant opportunities.</p></div><span id="resultsCount" class="results-count"></span></div>
@@ -52,5 +74,8 @@
 </main>
 <footer><a class="brand footer-brand" href="./"><span class="brand-mark">RV</span><span>RecruitVerse™</span></a><span>USA & Canada · Technology opportunities</span><span>© <span id="year"></span> RecruitVerse</span></footer>
 <dialog id="jobDialog" class="job-dialog"><button class="dialog-close" id="closeDialog" aria-label="Close">×</button><div id="dialogContent"></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
 <script src="app.js"></script>
 </body></html>

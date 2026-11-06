@@ -32,3 +32,85 @@ $("heroSearch").addEventListener("submit",e=>{e.preventDefault();$("filterSearch
 $("jobGrid").addEventListener("click",e=>{const b=e.target.closest("[data-job-id]");if(b)openJob(b.dataset.jobId);});$("dialogContent").addEventListener("click",e=>{const b=e.target.closest("[data-job-id]");if(b)openJob(b.dataset.jobId);});
 $("clearFilters").addEventListener("click",clearAll);$("emptyClear").addEventListener("click",clearAll);$("closeDialog").addEventListener("click",()=>$("jobDialog").close());$("jobDialog").addEventListener("click",e=>{if(e.target===$("jobDialog"))$("jobDialog").close();});$("runMatch").addEventListener("click",runSkillMatch);
 $("year").textContent=new Date().getFullYear();loadJobs();
+
+
+// Module 4: local resume parsing. The selected file is processed in-browser only.
+const RESUME_MAX_BYTES = 5 * 1024 * 1024;
+const KNOWN_SKILLS = [
+ "Java","Spring Boot","Microservices","REST APIs","SQL","AWS","Azure","GCP","Docker","Kubernetes",
+ "Terraform","Jenkins","GitHub Actions","CI/CD","Python","Machine Learning","LLM","RAG","LangChain",
+ "React","Angular","JavaScript","TypeScript","Node.js","C#",".NET","C++","C","Go","Ruby","PHP",
+ "Selenium","Cypress","Playwright","Jest","PostgreSQL","MySQL","MongoDB","Redis","Kafka","Spark",
+ "Databricks","Snowflake","Power BI","Tableau","Salesforce","Dynamics 365 F&O","SAP","Linux",
+ "Ansible","CloudFormation","Prometheus","Grafana","SRE","DevOps","Agile","Scrum","Data Engineering",
+ "ETL","PyTorch","TensorFlow","FastAPI","Flask","Django","GraphQL","HTML","CSS","OAuth","REST"
+];
+function detectSkills(text) {
+  const haystack = " " + text.toLowerCase().replace(/[^a-z0-9+#.]+/g, " ") + " ";
+  return KNOWN_SKILLS.filter(skill => {
+    const needle = " " + skill.toLowerCase().replace(/[^a-z0-9+#.]+/g, " ") + " ";
+    return haystack.includes(needle);
+  });
+}
+async function readResumeFile(file) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (file.size > RESUME_MAX_BYTES) throw new Error("File is larger than 5 MB. Please choose a smaller resume.");
+  if (ext === "txt") return await file.text();
+  if (ext === "docx") {
+    if (!window.mammoth) throw new Error("DOCX reader could not load. Check your internet connection and try again.");
+    const buffer = await file.arrayBuffer();
+    const result = await window.mammoth.extractRawText({arrayBuffer: buffer});
+    return result.value || "";
+  }
+  if (ext === "pdf") {
+    if (!window.pdfjsLib) throw new Error("PDF reader could not load. Check your internet connection and try again.");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const buffer = await file.arrayBuffer();
+    const pdf = await window.pdfjsLib.getDocument({data: buffer}).promise;
+    let text = "";
+    for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+      const page = await pdf.getPage(pageNo);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str || "").join(" ") + "\n";
+    }
+    return text;
+  }
+  throw new Error("Unsupported file type. Please upload a PDF, DOCX or TXT file.");
+}
+const resumeInput = document.getElementById("resumeFile");
+if (resumeInput) {
+  resumeInput.addEventListener("change", async () => {
+    const file = resumeInput.files && resumeInput.files[0];
+    const status = document.getElementById("resumeStatus");
+    const wrap = document.getElementById("resumeSkillsWrap");
+    wrap.hidden = true;
+    if (!file) { status.textContent = "No resume selected."; return; }
+    status.textContent = `Reading ${file.name} locally…`;
+    status.className = "resume-status";
+    try {
+      const text = await readResumeFile(file);
+      if (!text.trim()) throw new Error("No readable text found. If this is a scanned PDF, use a text-based PDF or TXT file.");
+      const skills = detectSkills(text);
+      if (!skills.length) throw new Error("No skills from our current technology dictionary were detected. You can still enter skills manually in the Skill Match section.");
+      document.getElementById("resumeSkillCount").textContent = `${skills.length} detected`;
+      document.getElementById("resumeSkillTags").innerHTML = skills.map(s => `<span>${escapeHTML(s)}</span>`).join("");
+      document.getElementById("candidateSkills").value = skills.join(", ");
+      wrap.hidden = false;
+      status.textContent = `Resume read successfully: ${file.name}. The file itself is not uploaded.`;
+      status.className = "resume-status success";
+      // Do not retain the extracted full resume text or file contents.
+    } catch (err) {
+      status.textContent = err.message || "Unable to read this resume.";
+      status.className = "resume-status error";
+    } finally {
+      resumeInput.value = "";
+    }
+  });
+}
+const matchResumeButton = document.getElementById("matchResumeSkills");
+if (matchResumeButton) {
+  matchResumeButton.addEventListener("click", () => {
+    runSkillMatch();
+    document.getElementById("matcher").scrollIntoView({behavior:"smooth"});
+  });
+}
