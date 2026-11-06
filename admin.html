@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecruitVerse | Admin Job Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="admin-jobs.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="brand-mark">RV</span><span>RecruitVerse<small>NORTH AMERICA TECH JOBS</small></span></a>
+  <a class="backlink" href="index.html">View job portal ↗</a>
+</header>
+<main class="wrap">
+  <section class="intro">
+    <p class="eyebrow">ADMIN COMMAND CENTER · MODULE 12</p>
+    <h1>Job management</h1>
+    <p>Create, edit, publish, close and remove USA & Canada technology opportunities.</p>
+  </section>
+
+  <section id="authPanel" class="panel">
+    <h2>Administrator sign in</h2>
+    <p id="connectionMessage" class="muted">Checking Supabase configuration…</p>
+    <form id="loginForm" class="login-grid">
+      <label>Email<input id="email" type="email" autocomplete="username" required></label>
+      <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn primary" type="submit">Sign in</button>
+    </form>
+    <p id="authMessage" class="notice" aria-live="polite"></p>
+  </section>
+
+  <section id="adminPanel" hidden>
+    <div class="toolbar">
+      <div><span class="eyebrow">SIGNED IN</span><strong id="whoami">Administrator</strong></div>
+      <button id="signOut" class="btn ghost">Sign out</button>
+    </div>
+    <div class="stats">
+      <article class="stat"><span>Total jobs</span><strong id="totalCount">0</strong></article>
+      <article class="stat"><span>Open</span><strong id="openCount">0</strong></article>
+      <article class="stat"><span>Drafts</span><strong id="draftCount">0</strong></article>
+      <article class="stat"><span>Closed</span><strong id="closedCount">0</strong></article>
+    </div>
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">JOB LISTINGS</p><h2 id="formHeading">Add a job</h2></div><button id="resetForm" class="btn ghost" type="button">Clear form</button></div>
+      <form id="jobForm">
+        <input id="jobId" type="hidden">
+        <div class="form-grid">
+          <label class="span2">Job title *<input id="title" required maxlength="180" placeholder="Senior Java Engineer"></label>
+          <label>Company *<input id="company" required maxlength="180" placeholder="Company name"></label>
+          <label>Country *<select id="country" required><option value="USA">USA</option><option value="Canada">Canada</option></select></label>
+          <label>State<input id="state" placeholder="California"></label>
+          <label>Province<input id="province" placeholder="Ontario"></label>
+          <label>City<input id="city" placeholder="Toronto"></label>
+          <label>Location display<input id="location" placeholder="Toronto, ON / Hybrid"></label>
+          <label>Category<select id="category"><option value="">Select category</option><option>Software Engineering</option><option>Cloud & DevOps</option><option>Data & AI</option><option>Cybersecurity</option><option>QA & Testing</option><option>Infrastructure</option><option>ERP & CRM</option><option>Product & Design</option><option>Other Technology</option></select></label>
+          <label>Work mode<select id="workMode"><option value="">Select</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select></label>
+          <label>Employment type<select id="employmentType"><option value="">Select</option><option>Full-time</option><option>Contract</option><option>Contract-to-hire</option><option>Part-time</option><option>Temporary</option></select></label>
+          <label>Seniority<select id="seniority"><option value="">Select</option><option>Entry</option><option>Mid</option><option>Senior</option><option>Lead</option><option>Principal</option><option>Director</option></select></label>
+          <label>Experience (years)<input id="experienceYears" type="number" min="0" max="50" value="0"></label>
+          <label class="span2">Skills (comma-separated)<input id="skills" placeholder="Java, Spring Boot, AWS, PostgreSQL"></label>
+          <label class="span2">Apply URL<input id="applyUrl" type="url" placeholder="https://company.com/careers/job-id"></label>
+          <label class="span2">Job description<textarea id="description" rows="6" placeholder="Responsibilities, requirements, qualifications…"></textarea></label>
+          <label>Status<select id="status"><option value="draft">Draft</option><option value="open">Open / Publish</option><option value="closed">Closed</option></select></label>
+        </div>
+        <div class="form-actions"><button class="btn primary" type="submit" id="saveJob">Save job</button><span id="formMessage" class="muted" aria-live="polite"></span></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">DATABASE</p><h2>Manage existing jobs</h2></div><button id="refreshJobs" class="btn ghost" type="button">↻ Refresh</button></div>
+      <div class="filters">
+        <input id="searchJobs" type="search" placeholder="Search title, company, city or skills">
+        <select id="filterStatus"><option value="">All statuses</option><option value="open">Open</option><option value="draft">Draft</option><option value="closed">Closed</option></select>
+        <select id="filterCountry"><option value="">All countries</option><option value="USA">USA</option><option value="Canada">Canada</option></select>
+      </div>
+      <p id="listMessage" class="muted" aria-live="polite">Loading jobs…</p>
+      <div id="jobsList" class="jobs-list"></div>
+    </section>
+    <p class="footnote">Candidate personal information is not displayed here. Access is enforced by Supabase Row Level Security.</p>
+  </section>
+</main>
+<footer>RecruitVerse™ · Independent North America technology job discovery project</footer>
+</body>
+</html>
