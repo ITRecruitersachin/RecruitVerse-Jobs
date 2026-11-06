@@ -1,126 +1,19 @@
-const state = { jobs: [], search: "", country: "", mode: "", type: "", seniority: "" };
-const $ = (id) => document.getElementById(id);
-
-async function loadJobs() {
-  try {
-    const response = await fetch("jobs.json");
-    if (!response.ok) throw new Error("Could not load jobs.json");
-    state.jobs = await response.json();
-    renderJobs();
-  } catch (error) {
-    $("jobGrid").innerHTML = '<p class="muted">Unable to load job listings. Check that jobs.json is in the project root and the site is being served through GitHub Pages or a local web server.</p>';
-    console.error(error);
-  }
-}
-
-function matches(job, query) {
-  if (!query) return true;
-  const searchable = [job.id, job.title, job.company, job.country, job.state, job.city, job.location,
-    job.workMode, job.employmentType, job.seniority, job.experience, ...(job.skills || [])].join(" ").toLowerCase();
-  return searchable.includes(query.toLowerCase());
-}
-
-function filteredJobs() {
-  return state.jobs.filter(job =>
-    job.status === "open" &&
-    matches(job, state.search) &&
-    (!state.country || job.country === state.country) &&
-    (!state.mode || job.workMode === state.mode) &&
-    (!state.type || job.employmentType === state.type) &&
-    (!state.seniority || job.seniority === state.seniority)
-  );
-}
-
-function escapeHTML(value = "") {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  })[char]);
-}
-
-function renderJobs() {
-  const jobs = filteredJobs();
-  $("jobCount").textContent = state.jobs.filter(j => j.status === "open").length;
-  $("resultsCount").textContent = `${jobs.length} matching ${jobs.length === 1 ? "role" : "roles"}`;
-  $("emptyState").hidden = jobs.length !== 0;
-  $("jobGrid").innerHTML = jobs.map(job => `
-    <article class="job-card">
-      <div class="card-top"><span class="job-id">${escapeHTML(job.id)}</span><span class="status">● Open</span></div>
-      <h3>${escapeHTML(job.title)}</h3>
-      <div class="company">${escapeHTML(job.company)} · ${escapeHTML(job.location)}</div>
-      <div class="job-meta"><span>${escapeHTML(job.country)}</span><span>${escapeHTML(job.workMode)}</span><span>${escapeHTML(job.employmentType)}</span><span>${escapeHTML(job.seniority)}</span></div>
-      <p class="muted">${escapeHTML(job.description)}</p>
-      <div class="skill-list">${(job.skills || []).slice(0,6).map(skill => `<span>${escapeHTML(skill)}</span>`).join("")}</div>
-      <div class="card-bottom"><span class="job-id">${escapeHTML(job.experience || "")}</span><button class="text-button" data-job-id="${escapeHTML(job.id)}">View details →</button></div>
-    </article>`).join("");
-}
-
-function relatedJobs(selected) {
-  return state.jobs.filter(job => job.id !== selected.id && job.status === "open")
-    .map(job => ({ job, score: job.skills.filter(skill => selected.skills.includes(skill)).length }))
-    .filter(item => item.score > 0)
-    .sort((a,b) => b.score - a.score)
-    .slice(0,3);
-}
-
-function openJob(jobId) {
-  const job = state.jobs.find(item => item.id === jobId);
-  if (!job) return;
-  const related = relatedJobs(job);
-  const requirements = (job.requirements || []).map(item => `<li>${escapeHTML(item)}</li>`).join("");
-  const relatedMarkup = related.length ? related.map(item =>
-    `<li><button class="text-button" data-job-id="${escapeHTML(item.job.id)}">${escapeHTML(item.job.title)}</button> — ${item.score} shared skills</li>`
-  ).join("") : "<li>No similar openings currently listed.</li>";
-  const apply = job.applyUrl
-    ? `<a class="button-primary dialog-apply" href="${escapeHTML(job.applyUrl)}" target="_blank" rel="noopener">Apply / express interest ↗</a>`
-    : `<p class="muted">Application link not configured yet. Add the employer-approved application URL to this job's applyUrl field in jobs.json.</p>`;
-  $("dialogContent").innerHTML = `
-    <div class="dialog-content">
-      <span class="eyebrow">${escapeHTML(job.id)} · ${escapeHTML(job.country)}</span>
-      <h2>${escapeHTML(job.title)}</h2><p>${escapeHTML(job.company)} · ${escapeHTML(job.location)}</p>
-      <div class="job-meta"><span>${escapeHTML(job.workMode)}</span><span>${escapeHTML(job.employmentType)}</span><span>${escapeHTML(job.experience)}</span></div>
-      <h3>Role overview</h3><p>${escapeHTML(job.description)}</p>
-      <h3>Key skills</h3><p>${(job.skills || []).map(escapeHTML).join(" · ")}</p>
-      <h3>Requirements</h3><ul>${requirements}</ul>
-      <h3>Work authorization</h3><p>${escapeHTML(job.authorization || "Confirm with the employer.")}</p>
-      <h3>Related opportunities</h3><ul>${relatedMarkup}</ul>${apply}
-    </div>`;
-  $("jobDialog").showModal();
-}
-
-function syncFilters() {
-  state.search = $("filterSearch").value.trim();
-  state.country = $("countryFilter").value;
-  state.mode = $("modeFilter").value;
-  state.type = $("typeFilter").value;
-  state.seniority = $("seniorityFilter").value;
-  renderJobs();
-}
-
-["filterSearch","countryFilter","modeFilter","typeFilter","seniorityFilter"].forEach(id =>
-  $(id).addEventListener(id === "filterSearch" ? "input" : "change", syncFilters)
-);
-$("heroSearch").addEventListener("submit", event => {
-  event.preventDefault();
-  $("filterSearch").value = $("searchInput").value;
-  syncFilters();
-  $("jobs").scrollIntoView({behavior:"smooth"});
-});
-$("jobGrid").addEventListener("click", event => {
-  const button = event.target.closest("[data-job-id]");
-  if (button) openJob(button.dataset.jobId);
-});
-$("dialogContent").addEventListener("click", event => {
-  const button = event.target.closest("[data-job-id]");
-  if (button) openJob(button.dataset.jobId);
-});
-$("closeDialog").addEventListener("click", () => $("jobDialog").close());
-$("jobDialog").addEventListener("click", event => {
-  if (event.target === $("jobDialog")) $("jobDialog").close();
-});
-$("clearFilters").addEventListener("click", () => {
-  ["filterSearch","countryFilter","modeFilter","typeFilter","seniorityFilter"].forEach(id => $(id).value = "");
-  $("searchInput").value = "";
-  syncFilters();
-});
-$("year").textContent = new Date().getFullYear();
-loadJobs();
+const state={jobs:[],search:"",country:"",region:"",city:"",category:"",skill:"",mode:"",type:"",seniority:"",experience:"",sort:"relevance"};
+const $=id=>document.getElementById(id);
+async function loadJobs(){try{const r=await fetch("jobs.json");if(!r.ok)throw Error("jobs.json unavailable");state.jobs=await r.json();populateOptions();renderJobs();}catch(e){$("jobGrid").innerHTML='<p class="muted">Could not load job data. Check that jobs.json is in the repository root.</p>';console.error(e);}}
+function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function unique(values){return [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
+function setOptions(id,values,label){const el=$(id);el.innerHTML=`<option value="">${label}</option>`+unique(values).map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join("");}
+function populateOptions(){setOptions("regionFilter",state.jobs.map(j=>j.country==="USA"?j.state:j.province),"All states / provinces");setOptions("cityFilter",state.jobs.map(j=>j.city),"All cities");setOptions("categoryFilter",state.jobs.map(j=>j.category),"All categories");setOptions("skillFilter",state.jobs.flatMap(j=>j.skills||[]),"All skills");}
+function score(job,q){if(!q)return 0;const fields=[job.title,job.company,job.country,job.state,job.province,job.city,job.location,job.category,...(job.skills||[])].join(" ").toLowerCase();return fields.includes(q.toLowerCase())?1:0;}
+function getFiltered(){let list=state.jobs.filter(j=>j.status==="open");list=list.filter(j=>{const region=j.country==="USA"?j.state:j.province;return (!state.search||score(j,state.search))&&(!state.country||j.country===state.country)&&(!state.region||region===state.region)&&(!state.city||j.city===state.city)&&(!state.category||j.category===state.category)&&(!state.skill||(j.skills||[]).includes(state.skill))&&(!state.mode||j.workMode===state.mode)&&(!state.type||j.employmentType===state.type)&&(!state.seniority||j.seniority===state.seniority)&&(!state.experience||Number(j.experienceYears||0)>=Number(state.experience));});
+if(state.sort==="newest")list.sort((a,b)=>b.postedDate.localeCompare(a.postedDate));if(state.sort==="title")list.sort((a,b)=>a.title.localeCompare(b.title));return list;}
+function renderJobs(){const list=getFiltered();$("jobCount").textContent=state.jobs.filter(j=>j.status==="open").length;$("resultsCount").textContent=`${list.length} matching ${list.length===1?"role":"roles"}`;$("emptyState").hidden=list.length>0;$("activeFilterText").textContent=list.length===state.jobs.filter(j=>j.status==="open").length?"Showing all open jobs":"Filters applied";$("jobGrid").innerHTML=list.map(j=>`<article class="job-card"><div class="card-top"><span class="job-id">${escapeHTML(j.id)}</span><span class="status">● Open</span></div><h3>${escapeHTML(j.title)}</h3><div class="company">${escapeHTML(j.company)} · ${escapeHTML(j.location)}</div><div class="job-meta"><span>${escapeHTML(j.country)}</span><span>${escapeHTML(j.workMode)}</span><span>${escapeHTML(j.employmentType)}</span><span>${escapeHTML(j.seniority)}</span></div><p class="muted">${escapeHTML(j.description)}</p><div class="skill-list">${(j.skills||[]).slice(0,6).map(s=>`<span>${escapeHTML(s)}</span>`).join("")}</div><div class="card-bottom"><span class="job-id">${escapeHTML(j.experience||"")}</span><button class="text-button" data-job-id="${escapeHTML(j.id)}">View details →</button></div></article>`).join("");}
+function relatedJobs(selected){return state.jobs.filter(j=>j.id!==selected.id&&j.status==="open").map(j=>({job:j,score:(j.skills||[]).filter(s=>(selected.skills||[]).includes(s)).length})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,3);}
+function openJob(id){const j=state.jobs.find(x=>x.id===id);if(!j)return;const related=relatedJobs(j);const req=(j.requirements||[]).map(x=>`<li>${escapeHTML(x)}</li>`).join("");const rec=related.length?related.map(x=>`<li><button class="text-button" data-job-id="${escapeHTML(x.job.id)}">${escapeHTML(x.job.title)}</button> — ${x.score} shared skills</li>`).join(""):"<li>No similar openings currently listed.</li>";const salary=j.salaryMin&&j.salaryMax?`<p>${escapeHTML(j.salaryCurrency)} ${Number(j.salaryMin).toLocaleString()} – ${Number(j.salaryMax).toLocaleString()}</p>`:"<p>Not disclosed</p>";const apply=j.applyUrl?`<a class="button-primary dialog-apply" href="${escapeHTML(j.applyUrl)}" target="_blank" rel="noopener">Apply / express interest ↗</a>`:"<p class='muted'>Application link not configured yet. Add an approved URL to applyUrl in jobs.json.</p>";$("dialogContent").innerHTML=`<div class="dialog-content"><span class="eyebrow">${escapeHTML(j.id)} · ${escapeHTML(j.country)}</span><h2>${escapeHTML(j.title)}</h2><p>${escapeHTML(j.company)} · ${escapeHTML(j.location)}</p><div class="job-meta"><span>${escapeHTML(j.workMode)}</span><span>${escapeHTML(j.employmentType)}</span><span>${escapeHTML(j.experience)}</span></div><h3>Role overview</h3><p>${escapeHTML(j.description)}</p><h3>Compensation</h3>${salary}<h3>Key skills</h3><p>${(j.skills||[]).map(escapeHTML).join(" · ")}</p><h3>Requirements</h3><ul>${req}</ul><h3>Work authorization</h3><p>${escapeHTML(j.authorization||"Confirm with employer.")}</p><h3>Related opportunities</h3><ul>${rec}</ul>${apply}</div>`;$("jobDialog").showModal();}
+const ids={filterSearch:"search",countryFilter:"country",regionFilter:"region",cityFilter:"city",categoryFilter:"category",skillFilter:"skill",modeFilter:"mode",typeFilter:"type",seniorityFilter:"seniority",experienceFilter:"experience",sortFilter:"sort"};
+Object.entries(ids).forEach(([id,key])=>$(id).addEventListener(key==="search"?"input":"change",()=>{state[key]=$(id).value.trim();if(key==="country"){state.region="";state.city="";$("regionFilter").value="";$("cityFilter").value="";}renderJobs();}));
+function clearAll(){$("filterSearch").value="";Object.entries(ids).forEach(([id,key])=>{if(key!=="search")$(id).value="";state[key]="";});state.search="";renderJobs();}
+$("heroSearch").addEventListener("submit",e=>{e.preventDefault();$("filterSearch").value=$("searchInput").value;state.search=$("searchInput").value.trim();renderJobs();$("jobs").scrollIntoView({behavior:"smooth"});});
+$("jobGrid").addEventListener("click",e=>{const b=e.target.closest("[data-job-id]");if(b)openJob(b.dataset.jobId);});$("dialogContent").addEventListener("click",e=>{const b=e.target.closest("[data-job-id]");if(b)openJob(b.dataset.jobId);});
+$("clearFilters").addEventListener("click",clearAll);$("emptyClear").addEventListener("click",clearAll);$("closeDialog").addEventListener("click",()=>$("jobDialog").close());$("jobDialog").addEventListener("click",e=>{if(e.target===$("jobDialog"))$("jobDialog").close();});$("year").textContent=new Date().getFullYear();loadJobs();
