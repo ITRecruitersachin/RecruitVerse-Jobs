@@ -63,11 +63,13 @@
     const {error}=await client().from("job_alerts").insert(row); if(error) throw error;
   }
   document.addEventListener("DOMContentLoaded",()=>{
-    const root=document.querySelector(".recruiter-tools")||document.querySelector("#recruiterTools")||document.body;
-    const panel=document.createElement("section");
-    panel.className="module-pane active";
-    panel.innerHTML='<div class="section-heading"><p class="eyebrow">MODULE 11.2 · CLOUD</p><h2>Cloud database status</h2><p id="rvCloudStatus">Checking session…</p></div>';
-    root.appendChild(panel);
+    if (!$("rvCloudStatus")) {
+      const root=document.querySelector(".recruiter-tools")||document.querySelector("#recruiterTools")||document.body;
+      const panel=document.createElement("section");
+      panel.className="module-pane active";
+      panel.innerHTML='<div class="section-heading"><p class="eyebrow">MODULE 11.2 · CLOUD</p><h2>Cloud database status</h2><p id="rvCloudStatus">Checking session…</p></div>';
+      root.appendChild(panel);
+    }
     [["jobPostForm","postStatus"],["candidateForm","candidateCloudStatus"],["alertForm","alertCloudStatus"]].forEach(([formId,statusId])=>{
       const form=$(formId); if(!form)return;
       const msg=document.createElement("p"); msg.id=statusId; msg.className="muted"; form.appendChild(msg);
