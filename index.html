@@ -105,6 +105,7 @@
     <button type="button" data-module-tab="manage">Manage jobs</button>
     <button type="button" data-module-tab="candidates">Candidates</button>
     
+    <button type="button" data-module-tab="pipeline">Recruitment pipeline</button>
     <button type="button" data-module-tab="boolean">Boolean builder</button>
     <button type="button" data-module-tab="discovery">Talent match</button>
   </nav>
@@ -147,6 +148,33 @@
     <div class="cloud-toolbar"><input id="candidateSearch" type="search" placeholder="Search name, email, skills, role or location"><button id="refreshCloudCandidates" class="button-secondary" type="button">Refresh</button><button id="exportCandidates" class="button-secondary" type="button">Export cloud candidates CSV</button></div>
     <p id="candidateCount" class="muted">0 profiles</p><div id="candidateList"></div>
   </div>
+  
+  <div id="pane-pipeline" class="module-pane">
+    <h3>Recruitment pipeline</h3>
+    <p class="muted">Link a saved cloud candidate to a job and track the recruiting lifecycle. Changes are stored in Supabase.</p>
+    <div class="pipeline-summary">
+      <div><strong id="pipeTotal">0</strong><span>Tracked submissions</span></div>
+      <div><strong id="pipeInterview">0</strong><span>Interviews</span></div>
+      <div><strong id="pipeOffer">0</strong><span>Offers</span></div>
+      <div><strong id="pipePlaced">0</strong><span>Placements</span></div>
+    </div>
+    <form id="pipelineForm" class="tool-form pipeline-form">
+      <label>Job requirement<select id="pipelineJob" required><option value="">Loading cloud jobs…</option></select></label>
+      <label>Candidate<select id="pipelineCandidate" required><option value="">Loading cloud candidates…</option></select></label>
+      <label>Initial stage<select id="pipelineStage"><option value="new">New</option><option value="contacted">Contacted</option><option value="submitted">Submitted</option></select></label>
+      <label>Client / end client (optional)<input id="pipelineClient" maxlength="160" placeholder="Confidential client"></label>
+      <label class="wide">Recruiter notes (optional)<textarea id="pipelineNotes" rows="3" maxlength="3000" placeholder="Screening notes, availability, compensation…"></textarea></label>
+      <div class="wide"><button class="button-primary" type="submit">Add to recruitment pipeline</button><p id="pipelineStatus" class="muted" role="status"></p></div>
+    </form>
+    <div class="pipeline-toolbar">
+      <input id="pipelineSearch" type="search" placeholder="Search candidate, job or client">
+      <select id="pipelineFilter"><option value="">All stages</option><option value="new">New</option><option value="contacted">Contacted</option><option value="submitted">Submitted</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="placed">Placed</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option></select>
+      <button id="pipelineRefresh" type="button" class="button-secondary">Refresh</button>
+      <button id="pipelineExport" type="button" class="button-secondary">Export CSV</button>
+    </div>
+    <div id="pipelineList"><p class="muted">Sign in as a recruiter or admin to load submissions.</p></div>
+  </div>
+
   <div id="pane-boolean" class="module-pane">
     <h3>Boolean search builder</h3>
     <label>Target title / title string<input id="boolTitle" placeholder='"Java Developer" OR "Backend Engineer"'></label>
@@ -178,4 +206,5 @@
 <script src="account.js"></script>
 <script src="app.js?v=13"></script>
 <script src="cloud-tools.js?v=13"></script>
+<script src="module14.js?v=14"></script>
 </body></html>
