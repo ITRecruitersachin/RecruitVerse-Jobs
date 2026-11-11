@@ -62,6 +62,26 @@
       keyword:String(f.get("keyword")||"").trim(),work_mode:f.get("workMode")||"",enabled:true};
     const {error}=await client().from("job_alerts").insert(row); if(error) throw error;
   }
+
+  async function loadManagedJobs() {
+    const box=$("adminJobList"); if(!box||!client()) return;
+    try {
+      await identity();
+      const {data,error}=await client().from("jobs").select("id,title,company,country,location,status,created_at").order("created_at",{ascending:false});
+      if(error)throw error;
+      if(!data?.length){box.innerHTML='<p class="muted">No cloud jobs yet. Create a job in Post a Job.</p>';return;}
+      box.innerHTML=data.map(j=>`<article class="admin-job-row"><div><strong>${esc(j.title)}</strong><span>${esc(j.company)} · ${esc(j.location||j.country||"")}</span><small>Status: ${esc(j.status)}</small></div><div class="admin-job-actions">${j.status==="draft"?`<button type="button" class="button-primary" data-cloud-job="${j.id}" data-next-status="open">Publish</button>`:j.status==="open"?`<button type="button" class="button-secondary" data-cloud-job="${j.id}" data-next-status="closed">Close</button>`:`<button type="button" class="button-secondary" data-cloud-job="${j.id}" data-next-status="open">Reopen</button>`}</div></article>`).join("");
+    } catch(e){box.textContent=e.message||"Could not load cloud jobs.";}
+  }
+  function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  async function updateJobStatus(id,status){
+    await identity();
+    const {error}=await client().from("jobs").update({status,updated_at:new Date().toISOString()}).eq("id",id);
+    if(error)throw error;
+    await loadManagedJobs(); await loadCounts();
+    if(window.RecruitVerseRefreshPublicJobs) await window.RecruitVerseRefreshPublicJobs();
+  }
+
   document.addEventListener("DOMContentLoaded",()=>{
     if (!$("rvCloudStatus")) {
       const root=document.querySelector(".recruiter-tools")||document.querySelector("#recruiterTools")||document.body;
@@ -86,9 +106,16 @@
         } catch(err) { say(statusId,err.message||"Cloud save failed."); }
       },true);
     });
-    loadCounts();
-    window.addEventListener("recruitverse-backend-ready",loadCounts);
+    loadCounts(); loadManagedJobs();
+    $("adminJobList")?.addEventListener("click",async e=>{
+      const btn=e.target.closest("[data-cloud-job]"); if(!btn)return;
+      btn.disabled=true; btn.textContent="Saving…";
+      try{await updateJobStatus(btn.dataset.cloudJob,btn.dataset.nextStatus);}
+      catch(err){say("rvCloudStatus",err.message||"Could not update job status.");btn.disabled=false;btn.textContent="Retry";}
+    });
+    document.querySelector('[data-module-tab="manage"]')?.addEventListener("click",loadManagedJobs);
+    window.addEventListener("recruitverse-backend-ready",()=>{loadCounts();loadManagedJobs();});
     client()?.auth.onAuthStateChange(()=>setTimeout(loadCounts,0));
   });
-  window.RecruitVerseCloud={refresh:loadCounts};
+  window.RecruitVerseCloud={refresh:loadCounts,refreshJobs:loadManagedJobs};
 })();

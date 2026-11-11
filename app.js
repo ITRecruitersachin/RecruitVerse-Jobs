@@ -1,6 +1,16 @@
 const state={jobs:[],search:"",country:"",region:"",city:"",category:"",skill:"",mode:"",type:"",seniority:"",experience:"",sort:"relevance"};
 const $=id=>document.getElementById(id);
-async function loadJobs(){try{const r=await fetch("jobs.json");if(!r.ok)throw Error("jobs.json unavailable");state.jobs=await r.json();populateOptions();renderJobs();if(typeof rvRenderAdminAndTools==="function")rvRenderAdminAndTools();}catch(e){$("jobGrid").innerHTML='<p class="muted">Could not load job data. Check that jobs.json is in the repository root.</p>';console.error(e);}}
+async function loadJobs(){try{
+ let cloudJobs=null;
+ if(window.RecruitVerseBackend?.client){
+   const result=await window.RecruitVerseBackend.client.from("jobs").select("*").eq("status","open").order("created_at",{ascending:false});
+   if(!result.error) cloudJobs=(result.data||[]).map(row=>({...row,id:String(row.id),state:row.state||"",province:row.province||"",workMode:row.work_mode,employmentType:row.employment_type,experienceYears:row.experience_years,experience:`${Number(row.experience_years||0)}+ years`,applyUrl:row.apply_url,postedDate:row.created_at||"",location:row.location||[row.city,row.state||row.province].filter(Boolean).join(", ")}));
+ }
+ if(cloudJobs!==null){state.jobs=cloudJobs;}
+ else {const r=await fetch("jobs.json");if(!r.ok)throw Error("jobs.json unavailable");state.jobs=await r.json();}
+ populateOptions();renderJobs();if(typeof rvRenderAdminAndTools==="function")rvRenderAdminAndTools();
+ }catch(e){$("jobGrid").innerHTML='<p class="muted">Could not load job data. Check Supabase access or jobs.json.</p>';console.error(e);}}
+window.RecruitVerseRefreshPublicJobs=loadJobs;
 function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function unique(values){return [...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b));}
 function setOptions(id,values,label){const el=$(id);el.innerHTML=`<option value="">${label}</option>`+unique(values).map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join("");}

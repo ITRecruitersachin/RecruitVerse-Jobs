@@ -80,19 +80,101 @@
       <label>Email <input id="rvLoginEmail" type="email" autocomplete="username" required></label>
       <label>Password <input id="rvLoginPassword" type="password" autocomplete="current-password" required></label>
       <button class="button-primary" type="submit">Sign in</button>
-      <button id="rvForgotPassword" class="button-secondary" type="button">Forgot password?</button>
-    </form>
-    <form id="rvResetPasswordForm" style="display:none;gap:10px;max-width:420px">
-      <h3>Set a new password</h3>
-      <label>New password <input id="rvNewPassword" type="password" autocomplete="new-password" minlength="8" required></label>
-      <label>Confirm new password <input id="rvConfirmPassword" type="password" autocomplete="new-password" minlength="8" required></label>
-      <button class="button-primary" type="submit">Update password</button>
     </form>
     <p id="rvLoginMessage" aria-live="polite"></p>
     <p id="rvProfileSummary"></p>
     <button id="rvLogout" class="button-secondary" type="button" hidden>Sign out</button>
   </div>
 </section>
+
+<section id="recruiterTools" class="recruiter-tools">
+  <div class="section-heading">
+    <p class="eyebrow">RECRUITER WORKSPACE · MODULES 5–10</p>
+    <h2>Recruiter command center</h2>
+    <p class="muted">Sign in with your RecruitVerse recruiter/admin account before saving records. Cloud records are protected by Supabase access policies.</p>
+    <p id="rvCloudStatus" class="muted">Checking cloud database…</p>
+  </div>
+  <div class="admin-stats">
+    <div class="stat-card"><strong id="adminTotalJobs">0</strong><span>Jobs</span></div>
+    <div class="stat-card"><strong id="adminCountries">0</strong><span>Countries</span></div>
+    <div class="stat-card"><strong id="adminCandidates">0</strong><span>Local profiles</span></div>
+    <div class="stat-card"><strong id="adminAlerts">0</strong><span>Local alerts</span></div>
+  </div>
+  <nav class="module-tabs" aria-label="Recruiter tools">
+    <button type="button" class="active" data-module-tab="jobs">Post a job</button>
+    <button type="button" data-module-tab="manage">Manage jobs</button>
+    <button type="button" data-module-tab="candidates">Candidates</button>
+    <button type="button" data-module-tab="alerts">Job alerts</button>
+    <button type="button" data-module-tab="boolean">Boolean builder</button>
+    <button type="button" data-module-tab="discovery">Talent match</button>
+  </nav>
+  <div id="pane-jobs" class="module-pane active">
+    <h3>Create job listing</h3>
+    <form id="jobPostForm" class="tool-form">
+      <label>Job title<input name="title" required></label>
+      <label>Company<input name="company" required></label>
+      <label>Country<select name="country" required><option value="">Select country</option><option value="USA">USA</option><option value="Canada">Canada</option></select></label>
+      <label>State / Province<input name="region" required placeholder="e.g. Virginia or Ontario"></label>
+      <label>City<input name="city" required></label>
+      <label>Category<input name="category" placeholder="e.g. Software Engineering" required></label>
+      <label>Work mode<select name="workMode" required><option value="">Select</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select></label>
+      <label>Employment type<select name="employmentType" required><option value="">Select</option><option>Full-time</option><option>Contract</option><option>Contract-to-hire</option><option>Part-time</option></select></label>
+      <label>Seniority<select name="seniority" required><option value="">Select</option><option>Entry</option><option>Mid</option><option>Senior</option><option>Lead</option><option>Principal</option><option>Director</option></select></label>
+      <label>Experience (years)<input name="experienceYears" type="number" min="0" max="50" value="5"></label>
+      <label class="wide">Skills (comma separated)<input name="skills" placeholder="Java, Spring Boot, AWS"></label>
+      <label class="wide">Job description<textarea name="description" rows="5" required></textarea></label>
+      <label class="wide">Apply URL<input name="applyUrl" type="url" placeholder="https://"></label>
+      <button class="button-primary" type="submit">Save job to Supabase</button>
+    </form>
+    <p id="postStatus" class="muted" aria-live="polite"></p>
+  </div>
+  <div id="pane-manage" class="module-pane">
+    <h3>Cloud job management</h3><p class="muted">Review your Supabase job drafts. Publish approved listings to make them visible on the public job board, or close listings that are no longer active.</p>
+    <div id="adminJobList"></div><button id="exportJobs" class="button-secondary" type="button">Export job inventory JSON</button>
+  </div>
+  <div id="pane-candidates" class="module-pane">
+    <h3>Save candidate profile</h3>
+    <form id="candidateForm" class="tool-form">
+      <label>Candidate name<input name="name" required></label>
+      <label>Email<input name="email" type="email"></label>
+      <label>Location<input name="location" placeholder="City, State / Province"></label>
+      <label>Target role<input name="role" required></label>
+      <label class="wide">Skills (comma separated)<input name="skills" placeholder="Python, AWS, React"></label>
+      <button class="button-primary" type="submit">Save candidate to Supabase</button>
+    </form>
+    <p id="candidateCloudStatus" class="muted" aria-live="polite"></p>
+    <div class="toolbar"><input id="candidateSearch" placeholder="Search local candidate profiles"><span id="candidateCount" class="muted">0 profiles</span></div>
+    <div id="candidateList"></div><button id="exportCandidates" class="button-secondary" type="button">Export local candidates CSV</button>
+  </div>
+  <div id="pane-alerts" class="module-pane">
+    <h3>Create job alert</h3>
+    <form id="alertForm" class="tool-form">
+      <label>Alert name<input name="name" required placeholder="Senior Java - US Remote"></label>
+      <label>Country<select name="country"><option value="">USA & Canada</option><option value="USA">USA</option><option value="Canada">Canada</option></select></label>
+      <label>Keyword<input name="keyword" placeholder="Java, AWS, Data Engineer"></label>
+      <label>Work mode<select name="workMode"><option value="">Any</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select></label>
+      <button class="button-primary" type="submit">Save alert to Supabase</button>
+    </form>
+    <p id="alertCloudStatus" class="muted" aria-live="polite"></p><div id="alertList"></div>
+  </div>
+  <div id="pane-boolean" class="module-pane">
+    <h3>Boolean search builder</h3>
+    <label>Target title / title string<input id="boolTitle" placeholder='"Java Developer" OR "Backend Engineer"'></label>
+    <label>Skills, comma separated<input id="boolSkills" placeholder="Java, Spring Boot, AWS"></label>
+    <label>Location string<input id="boolLocation" value='"United States" OR USA OR Canada'></label>
+    <label>Exclude terms, comma separated<input id="boolExclude" placeholder="intern, junior"></label>
+    <label>Output format<select id="boolFormat"><option value="standard">Standard Boolean</option><option value="linkedin">LinkedIn Recruiter</option><option value="xray">Google X-Ray</option></select></label>
+    <div class="button-row"><button id="buildBoolean" class="button-primary" type="button">Build search</button><button id="copyBoolean" class="button-secondary" type="button">Copy</button></div>
+    <textarea id="booleanOutput" rows="5" readonly></textarea><p id="booleanStatus" class="muted"></p>
+  </div>
+  <div id="pane-discovery" class="module-pane">
+    <h3>Talent discovery / skill match</h3>
+    <label>Candidate<select id="discoveryCandidate"><option value="">Select a saved candidate</option></select></label>
+    <label>Job<select id="discoveryJob"><option value="">All open jobs</option></select></label>
+    <button id="runDiscovery" class="button-primary" type="button">Find matching jobs</button><div id="discoveryResults"></div>
+  </div>
+</section>
+
 <section id="about" class="about-section"><p class="eyebrow">ABOUT THE PORTAL</p><h2>Built for North American technology talent.</h2><p class="muted">RecruitVerse Jobs is an independent job-discovery project. Listings are informational. Verify employer identity, role status, compensation, work arrangement and work-authorization requirements before sharing personal information.</p></section>
 </main>
 <footer><a class="brand footer-brand" href="./"><span class="brand-mark">RV</span><span>RecruitVerse™</span></a><span>USA & Canada · Technology opportunities</span><span>© <span id="year"></span> RecruitVerse</span></footer>

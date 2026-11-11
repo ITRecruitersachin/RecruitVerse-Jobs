@@ -74,3 +74,6 @@
 .admin-job-row span,.candidate-row span,.alert-row span,.admin-job-row small,.candidate-row small{display:block;color:var(--muted,#9aabc2);margin-top:4px}
 .admin-job-actions{display:flex;align-items:center;gap:10px}
 @media(max-width:650px){.admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tool-form{grid-template-columns:1fr}.tool-form .wide{grid-column:auto}.recruiter-tools{margin:36px 12px;padding:20px 14px}}
+
+.admin-job-actions button{white-space:nowrap;padding:9px 12px}
+@media(max-width:560px){.admin-job-row{align-items:flex-start;flex-direction:column}.admin-job-actions{width:100%}.admin-job-actions button{width:100%}}
