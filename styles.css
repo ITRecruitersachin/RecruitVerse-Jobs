@@ -77,3 +77,12 @@
 
 .admin-job-actions button{white-space:nowrap;padding:9px 12px}
 @media(max-width:560px){.admin-job-row{align-items:flex-start;flex-direction:column}.admin-job-actions{width:100%}.admin-job-actions button{width:100%}}
+
+/* Module 13 cloud management controls */
+.cloud-toolbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:14px 0}
+.cloud-toolbar input{flex:1 1 240px;min-width:180px}
+.cloud-toolbar select{min-width:145px}
+.cloud-toolbar button{white-space:nowrap}
+#cloudJobCount,#candidateCount{margin:8px 0 12px}
+.admin-job-actions button{min-width:92px}
+@media(max-width:560px){.cloud-toolbar{display:grid;grid-template-columns:1fr}.cloud-toolbar input,.cloud-toolbar select,.cloud-toolbar button{width:100%;min-width:0}.candidate-row{align-items:flex-start;flex-direction:column}.candidate-row>button{width:100%}}

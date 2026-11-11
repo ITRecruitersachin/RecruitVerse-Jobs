@@ -89,7 +89,7 @@
 
 <section id="recruiterTools" class="recruiter-tools">
   <div class="section-heading">
-    <p class="eyebrow">RECRUITER WORKSPACE · MODULES 5–10</p>
+    <p class="eyebrow">RECRUITER WORKSPACE · CLOUD MANAGEMENT</p>
     <h2>Recruiter command center</h2>
     <p class="muted">Sign in with your RecruitVerse recruiter/admin account before saving records. Cloud records are protected by Supabase access policies.</p>
     <p id="rvCloudStatus" class="muted">Checking cloud database…</p>
@@ -97,14 +97,14 @@
   <div class="admin-stats">
     <div class="stat-card"><strong id="adminTotalJobs">0</strong><span>Jobs</span></div>
     <div class="stat-card"><strong id="adminCountries">0</strong><span>Countries</span></div>
-    <div class="stat-card"><strong id="adminCandidates">0</strong><span>Local profiles</span></div>
-    <div class="stat-card"><strong id="adminAlerts">0</strong><span>Local alerts</span></div>
+    <div class="stat-card"><strong id="adminCandidates">0</strong><span>Cloud candidates</span></div>
+    <div class="stat-card"><strong id="adminOpenJobs">0</strong><span>Open jobs</span></div>
   </div>
   <nav class="module-tabs" aria-label="Recruiter tools">
     <button type="button" class="active" data-module-tab="jobs">Post a job</button>
     <button type="button" data-module-tab="manage">Manage jobs</button>
     <button type="button" data-module-tab="candidates">Candidates</button>
-    <button type="button" data-module-tab="alerts">Job alerts</button>
+    
     <button type="button" data-module-tab="boolean">Boolean builder</button>
     <button type="button" data-module-tab="discovery">Talent match</button>
   </nav>
@@ -129,11 +129,12 @@
     <p id="postStatus" class="muted" aria-live="polite"></p>
   </div>
   <div id="pane-manage" class="module-pane">
-    <h3>Cloud job management</h3><p class="muted">Review your Supabase job drafts. Publish approved listings to make them visible on the public job board, or close listings that are no longer active.</p>
-    <div id="adminJobList"></div><button id="exportJobs" class="button-secondary" type="button">Export job inventory JSON</button>
+    <h3>Cloud job management</h3><p class="muted">Search and manage job records stored in Supabase. Publish drafts, close active listings, or reopen closed jobs.</p>
+    <div class="cloud-toolbar"><input id="cloudJobSearch" type="search" placeholder="Search title, company, location…"><select id="cloudJobStatus"><option value="">All statuses</option><option value="draft">Draft</option><option value="open">Open</option><option value="closed">Closed</option></select><button id="refreshCloudJobs" class="button-secondary" type="button">Refresh</button><button id="exportJobs" class="button-secondary" type="button">Export cloud jobs</button></div>
+    <p id="cloudJobCount" class="muted" aria-live="polite"></p><div id="adminJobList"></div>
   </div>
   <div id="pane-candidates" class="module-pane">
-    <h3>Save candidate profile</h3>
+    <h3>Cloud candidate database</h3><p class="muted">Candidate profiles are stored securely in Supabase. Only the profile owner and admins can access them.</p>
     <form id="candidateForm" class="tool-form">
       <label>Candidate name<input name="name" required></label>
       <label>Email<input name="email" type="email"></label>
@@ -143,19 +144,8 @@
       <button class="button-primary" type="submit">Save candidate to Supabase</button>
     </form>
     <p id="candidateCloudStatus" class="muted" aria-live="polite"></p>
-    <div class="toolbar"><input id="candidateSearch" placeholder="Search local candidate profiles"><span id="candidateCount" class="muted">0 profiles</span></div>
-    <div id="candidateList"></div><button id="exportCandidates" class="button-secondary" type="button">Export local candidates CSV</button>
-  </div>
-  <div id="pane-alerts" class="module-pane">
-    <h3>Create job alert</h3>
-    <form id="alertForm" class="tool-form">
-      <label>Alert name<input name="name" required placeholder="Senior Java - US Remote"></label>
-      <label>Country<select name="country"><option value="">USA & Canada</option><option value="USA">USA</option><option value="Canada">Canada</option></select></label>
-      <label>Keyword<input name="keyword" placeholder="Java, AWS, Data Engineer"></label>
-      <label>Work mode<select name="workMode"><option value="">Any</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select></label>
-      <button class="button-primary" type="submit">Save alert to Supabase</button>
-    </form>
-    <p id="alertCloudStatus" class="muted" aria-live="polite"></p><div id="alertList"></div>
+    <div class="cloud-toolbar"><input id="candidateSearch" type="search" placeholder="Search name, email, skills, role or location"><button id="refreshCloudCandidates" class="button-secondary" type="button">Refresh</button><button id="exportCandidates" class="button-secondary" type="button">Export cloud candidates CSV</button></div>
+    <p id="candidateCount" class="muted">0 profiles</p><div id="candidateList"></div>
   </div>
   <div id="pane-boolean" class="module-pane">
     <h3>Boolean search builder</h3>
@@ -186,6 +176,6 @@
 <script src="supabase-config.js"></script>
 <script src="backend.js"></script>
 <script src="account.js"></script>
-<script src="app.js"></script>
-<script src="cloud-tools.js"></script>
+<script src="app.js?v=13"></script>
+<script src="cloud-tools.js?v=13"></script>
 </body></html>
