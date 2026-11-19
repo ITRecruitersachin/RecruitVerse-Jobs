@@ -8,7 +8,9 @@ async function loadJobs(){try{
  }
  if(cloudJobs!==null){state.jobs=cloudJobs;}
  else {const r=await fetch("jobs.json");if(!r.ok)throw Error("jobs.json unavailable");state.jobs=await r.json();}
- populateOptions();renderJobs();if(typeof rvRenderAdminAndTools==="function")rvRenderAdminAndTools();
+ window.RecruitVersePublicJobs = state.jobs;
+window.dispatchEvent(new Event("recruitverse-public-jobs-ready"));
+populateOptions();renderJobs();if(typeof rvRenderAdminAndTools==="function")rvRenderAdminAndTools();
  }catch(e){$("jobGrid").innerHTML='<p class="muted">Could not load job data. Check Supabase access or jobs.json.</p>';console.error(e);}}
 window.RecruitVerseRefreshPublicJobs=loadJobs;
 function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
