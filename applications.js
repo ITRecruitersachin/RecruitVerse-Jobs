@@ -49,7 +49,7 @@
       const upload=await sb.storage.from('candidate-resumes').upload(objectPath,file,{upsert:false,contentType:file.type||'application/octet-stream'});
       if(upload.error)throw upload.error;
       const applicationId=crypto.randomUUID();
-      const payload={id:applicationId,job_id:selectedJob.id,job_title:selectedJob.title,candidate_name:fd.get('full_name').trim(),email:fd.get('email').trim(),phone:fd.get('phone').trim(),location:fd.get('location').trim(),linkedin_url:fd.get('linkedin_url').trim()||null,resume_path:objectPath,resume_filename:file.name,message:fd.get('message').trim()||null,status:'new'};
+      const payload={id:applicationId,job_id:selectedJob.db_id || selectedJob.id,job_title:selectedJob.title,candidate_name:fd.get('full_name').trim(),email:fd.get('email').trim(),phone:fd.get('phone').trim(),location:fd.get('location').trim(),linkedin_url:fd.get('linkedin_url').trim()||null,resume_path:objectPath,resume_filename:file.name,message:fd.get('message').trim()||null,status:'new'};
       const saved=await sb.from('applications').insert(payload);
       if(saved.error){await sb.storage.from('candidate-resumes').remove([objectPath]);throw saved.error;}
       // Optional Edge Function: database submission remains successful even if email delivery is not configured.
