@@ -55,9 +55,10 @@
       const { data, error } = await client.from("jobs")
         .select("*").eq("status", "open").order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []).map(row => ({
-        ...row,
-        id: row.external_id || row.id,
+       return (data || []).map(row => ({
+  ...row,
+  db_id: row.id,
+  id: row.external_id || row.id,
         workMode: row.work_mode,
         employmentType: row.employment_type,
         experienceYears: row.experience_years,
